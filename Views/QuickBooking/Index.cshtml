@@ -1,0 +1,41 @@
+﻿@using MovieBookingMVC.ViewModels
+@model QuickBookingViewModel
+
+<h2>Quick Booking</h2>
+
+<form asp-controller="QuickBooking" asp-action="Index" method="get">
+    <div class="mb-3">
+        <label>Choose Date</label>
+        <input type="date" name="date" class="form-control" value="@Model.SelectedDate" required />
+    </div>
+
+    <div class="mb-3">
+        <label>Choose Room</label>
+        <select name="cinemaId" class="form-select" required>
+            <option value="">Choose room</option>
+            @foreach (var cinema in Model.Cinemas)
+            {
+                <option value="@cinema.Id" selected="@(cinema.Id == Model.SelectedCinemaId ? "selected" : null)">
+                    @cinema.Name - Room @cinema.NumberRoom
+                </option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Search film</button>
+</form>
+
+@if (Model.Movies.Any())
+{
+    <h3>List Movies</h3>
+    <ul class="list-group">
+        @foreach (var movie in Model.Movies)
+        {
+            <li class="list-group-item">
+                <a asp-controller="QuickBooking" asp-action="SelectShowtime" asp-route-movieId="@movie.Id">
+                    @movie.Title
+                </a>
+            </li>
+        }
+    </ul>
+}

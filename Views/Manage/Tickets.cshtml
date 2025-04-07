@@ -1,0 +1,455 @@
+﻿@using MovieBookingMVC.Models
+@model List<BookingPaymentViewModel>
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="text-white">Ticket Management</h2>
+
+    <div class="btn-group mb-3">
+        <a href="@Url.Action("Movies", "Manage")" class="btn btn-outline-light">Movie Manage</a>
+        <a href="@Url.Action("Showtimes", "Manage")" class="btn btn-outline-light">Showtime Manage</a>
+        <a href="@Url.Action("Seats", "Manage")" class="btn btn-outline-light">Seat Manage</a>
+        <a href="@Url.Action("Rooms", "Manage")" class="btn btn-outline-light">Room Manage</a>
+        <a href="@Url.Action("Tickets", "Manage")" class="btn btn-primary">Ticket Manage</a>
+        <a href="@Url.Action("Users", "Manage")" class="btn btn-outline-light">User Manage</a>
+        <a href="@Url.Action("UserDetails", "Manage")" class="btn btn-outline-light">UserDetail Manage</a>
+        <a href="@Url.Action("Statistical", "Manage")" class="btn btn-outline-light">Statistical Manage</a>
+
+    </div>
+
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addTicketModal">Add ticket</button>
+    <button class="btn btn-info mb-3" data-bs-toggle="modal" data-bs-target="#filterTicketModal">Filter by date</button>
+
+    <div class="table-responsive">
+        <table class="table table-dark table-bordered text-white">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Movie</th>
+                    <th>User ID</th>
+                    <th>User</th>
+                    <th>Room</th>
+                    <th>Show Date</th>
+                    <th>Show Time</th>
+                    <th>Seat</th>
+                    <th>Total Amount</th>
+                    <th>Payment Method</th>
+                    <th>Booking date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="ticketTableBody">
+                @foreach (var booking in Model)
+                {
+                    <tr>
+                        <td>@booking.BookingId</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                @if (!string.IsNullOrEmpty(booking.MovieImage))
+                                {
+                                    <img src="@booking.MovieImage" class="me-2" alt="@booking.MovieTitle" style="width: 50px; height: auto;">
+                                }
+                                @booking.MovieTitle
+                            </div>
+                        </td>
+                        <td>@booking.UserId</td>
+                        <td>@booking.UserFullName</td>
+                        <td>@booking.CinemaName</td>
+                        <td>@booking.ShowDate.ToString("yyyy-MM-dd")</td>
+                        <td>@booking.StartTime.ToString("HH:mm")</td>
+                        <td>@booking.SeatNumbers</td>
+                        <td>@booking.TotalAmount.ToString("N0") VND</td>
+                        <td>@booking.PaymentMethod</td>
+                        <td>@booking.BookingTime.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm edit-ticket" data-id="@booking.BookingId">Edit</button>
+                            <button class="btn btn-danger btn-sm delete-ticket" data-id="@booking.BookingId">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Thêm Vé -->
+<div class="modal fade" id="addTicketModal" tabindex="-1" aria-labelledby="addTicketLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-dark" id="addTicketLabel">Add New Ticket</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark">
+                <form id="addTicketForm">
+                    <div class="mb-3">
+                        <label class="form-label">User</label>
+                        <select class="form-control" id="userId" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Show Time</label>
+                        <select class="form-control" id="showtimeId" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Seat</label>
+                        <select class="form-control" id="seatIds" multiple required></select>
+                        <small class="form-text text-muted">Hold Ctrl to select multiple seats</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Amount</label>
+                        <input type="number" class="form-control" id="amount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Payment Method</label>
+                        <select class="form-control" id="paymentMethod" required>
+                            <option value="Tiền mặt">Cash</option>
+                            <option value="Chuyển khoản">Banking</option>
+                            <option value="Thẻ tín dụng">Credit card</option>
+                            <option value="Ví điện tử">E-wallet</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Ticket</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Sửa Vé -->
+<div class="modal fade" id="editTicketModal" tabindex="-1" aria-labelledby="editTicketLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-dark" id="editTicketLabel">Edit Ticket</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark">
+                <form id="editTicketForm">
+                    <input type="hidden" id="editBookingId">
+                    <div class="mb-3">
+                        <label class="form-label">User</label>
+                        <select class="form-control" id="editUserId" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Show Time</label>
+                        <select class="form-control" id="editShowtimeId" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Seat</label>
+                        <select class="form-control" id="editSeatIds" multiple required></select>
+                        <small class="form-text text-muted">Hold Ctrl to select multiple seats</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Amount</label>
+                        <input type="number" class="form-control" id="editAmount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Payment Method</label>
+                        <select class="form-control" id="editPaymentMethod" required>
+                            <option value="Tiền mặt">Cash</option>
+                            <option value="Chuyển khoản">Banking</option>
+                            <option value="Thẻ tín dụng">Credit Card</option>
+                            <option value="Ví điện tử">E-Wallet</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Lọc Vé Theo Ngày -->
+<div class="modal fade" id="filterTicketModal" tabindex="-1" aria-labelledby="filterTicketLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-dark" id="filterTicketLabel">Filter Tickets By Date</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark">
+                <form id="filterTicketForm">
+                    <div class="mb-3">
+                        <label class="form-label">From Date</label>
+                        <input type="date" class="form-control" id="startDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">To Date</label>
+                        <input type="date" class="form-control" id="endDate" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        function loadDropdowns() {
+            // Load danh sách người dùng
+            $.get("https://localhost:7279/api/users", function (users) {
+                $("#userId, #editUserId").empty().append('<option value="">Select user</option>');
+                users.forEach(user => {
+                    $("#userId, #editUserId").append(`<option value="${user.id}">${user.fullName}</option>`);
+                });
+            });
+
+            // Load danh sách suất chiếu
+            $.get("https://localhost:7279/api/showtimes", function (showtimes) {
+                $("#showtimeId, #editShowtimeId").empty().append('<option value="">Select showtime</option>');
+                showtimes.forEach(showtime => {
+                    $("#showtimeId, #editShowtimeId").append(`<option value="${showtime.id}">${showtime.movieTitle} - ${showtime.showDate} - ${showtime.startTime}</option>`);
+                });
+            });
+        }
+
+        // Khi thay đổi suất chiếu, load danh sách ghế
+        $("#showtimeId").change(function () {
+            var showtimeId = $(this).val();
+            if (!showtimeId) {
+                $("#seatIds").html('<option value="">Select seat</option>');
+                return;
+            }
+
+            $.get(`https://localhost:7279/api/seats/showtime/${showtimeId}`, function (seats) {
+                if (!seats.length) {
+                    $("#seatIds").html('<option value="">No seats available</option>');
+                    return;
+                }
+
+                var seatOptions = seats.map(seat => {
+                    var statusText = seat.isBooked ? "Booked" : "Available";
+                    var statusColor = seat.isBooked ? "🔴" : "🟢";
+                    return `<option value="${seat.id}" ${seat.isBooked ? 'disabled' : ''}>
+                                ${seat.seatNumber} - ${seat.seatType} (${statusColor} ${statusText})
+                            </option>`;
+                }).join("");
+
+                $("#seatIds").html(seatOptions);
+            }).fail(function () {
+                alert("Unable to load seat list.");
+            });
+        });
+
+        // Khi thay đổi suất chiếu trong modal sửa, load danh sách ghế
+        $("#editShowtimeId").change(function () {
+            var showtimeId = $(this).val();
+            if (!showtimeId) {
+                $("#editSeatIds").html('<option value="">Select seat</option>');
+                return;
+            }
+
+            $.get(`https://localhost:7279/api/seats/showtime/${showtimeId}`, function (seats) {
+                if (!seats.length) {
+                    $("#editSeatIds").html('<option value="">No seats available</option>');
+                    return;
+                }
+
+                var seatOptions = seats.map(seat => {
+                    var statusText = seat.isBooked ? "Booked" : "Available";
+                    var statusColor = seat.isBooked ? "🔴" : "🟢";
+                    // Không disable ghế đã đặt trong modal sửa vì có thể đó là ghế của booking hiện tại
+                    return `<option value="${seat.id}">
+                                ${seat.seatNumber} - ${seat.seatType} (${statusColor} ${statusText})
+                            </option>`;
+                }).join("");
+
+                $("#editSeatIds").html(seatOptions);
+            }).fail(function () {
+                alert("Unable to load seat list.");
+            });
+        });
+
+        function loadBookings() {
+            $.get("https://localhost:7279/api/BookingPayment/all", function (bookings) {
+                let rows = bookings.map(booking => `
+                    <tr>
+                        <td>${booking.bookingId}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                ${booking.movieImage ? `<img src="${booking.movieImage}" class="me-2" alt="${booking.movieTitle}" style="width: 50px; height: auto;">` : ''}
+                                ${booking.movieTitle}
+                            </div>
+                        </td>
+                        <td>${booking.userId}</td>
+                        <td>${booking.userFullName}</td>
+                        <td>${booking.cinemaName}</td>
+                        <td>${new Date(booking.showDate).toLocaleDateString()}</td>
+                        <td>${new Date(booking.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                        <td>${booking.seatNumbers}</td>
+                        <td>${booking.totalAmount.toLocaleString()} VND</td>
+                        <td>${booking.paymentMethod}</td>
+                        <td>${new Date(booking.bookingTime).toLocaleString()}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm edit-ticket" data-id="${booking.bookingId}">Edit</button>
+                            <button class="btn btn-danger btn-sm delete-ticket" data-id="${booking.bookingId}">Delete</button>
+                        </td>
+                    </tr>`).join("");
+                $("#ticketTableBody").html(rows);
+            }).fail(() => alert("Unable to load ticket list."));
+        }
+
+        loadBookings();
+        loadDropdowns();
+
+        // Thêm vé
+        $("#addTicketForm").submit(function (event) {
+            event.preventDefault();
+
+            // Lấy danh sách ID ghế đã chọn
+            var selectedSeatIds = $("#seatIds").val();
+            if (!selectedSeatIds || selectedSeatIds.length === 0) {
+                alert("Please select at least one seat!");
+                return;
+            }
+
+            let bookingData = {
+                userId: parseInt($("#userId").val()),
+                showtimeId: parseInt($("#showtimeId").val()),
+                seatIds: selectedSeatIds.map(id => parseInt(id)),
+                amount: parseFloat($("#amount").val()),
+                paymentMethod: $("#paymentMethod").val()
+            };
+
+            $.ajax({
+                url: "https://localhost:7279/api/BookingPayment",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(bookingData),
+                success: function () {
+                    alert("Ticket added successfully!");
+                    $("#addTicketModal").modal("hide");
+                    loadBookings();
+                },
+                error: function (xhr) {
+                    alert("Error adding ticket: " + xhr.responseText);
+                }
+            });
+        });
+
+        // Xóa vé
+        $(document).on("click", ".delete-ticket", function () {
+            let bookingId = $(this).data("id");
+            if (!confirm("Are you sure you want to delete this ticket??")) return;
+
+            $.ajax({
+                url: `https://localhost:7279/api/BookingPayment/${bookingId}`,
+                type: "DELETE",
+                success: function () {
+                    alert("Ticket deleted successfully!");
+                    loadBookings();
+                },
+                error: function (xhr) {
+                    alert("Error while deleting ticket: " + xhr.responseText);
+                }
+            });
+        });
+
+        // Hiển thị modal sửa vé
+        $(document).on("click", ".edit-ticket", function () {
+            var bookingId = $(this).data("id");
+
+            $.get(`https://localhost:7279/api/BookingPayment/${bookingId}`, function (data) {
+                $("#editBookingId").val(data.bookingId);
+                $("#editUserId").val(data.userId);
+                $("#editShowtimeId").val(data.showtimeId).trigger("change");
+
+                // Đợi ghế load xong rồi gán giá trị
+                setTimeout(() => {
+                    // Ở đây cần xử lý để select nhiều ghế
+                    var seatIdArray = data.seatIds || [];
+                    $("#editSeatIds").val(seatIdArray);
+                }, 1000);
+
+                $("#editAmount").val(data.totalAmount);
+                $("#editPaymentMethod").val(data.paymentMethod);
+
+                $("#editTicketModal").modal("show");
+            }).fail(function (xhr) {
+                alert("Unable to load ticket information: " + xhr.responseText);
+            });
+        });
+
+        // Cập nhật vé
+        $("#editTicketForm").submit(function (event) {
+            event.preventDefault();
+            var bookingId = $("#editBookingId").val();
+
+            // Lấy danh sách ID ghế đã chọn
+            var selectedSeatIds = $("#editSeatIds").val();
+            if (!selectedSeatIds || selectedSeatIds.length === 0) {
+                alert("Please select at least one seat!");
+                return;
+            }
+
+            var updatedBooking = {
+                bookingId: parseInt(bookingId),
+                userId: parseInt($("#editUserId").val()),
+                showtimeId: parseInt($("#editShowtimeId").val()),
+                seatIds: selectedSeatIds.map(id => parseInt(id)),
+                amount: parseFloat($("#editAmount").val()),
+                paymentMethod: $("#editPaymentMethod").val()
+            };
+
+            $.ajax({
+                url: `https://localhost:7279/api/BookingPayment/${bookingId}`,
+                type: "PUT",
+                contentType: "application/json",
+                data: JSON.stringify(updatedBooking),
+                success: function () {
+                    alert("Ticket update successful!");
+                    $("#editTicketModal").modal("hide");
+                    loadBookings();
+                },
+                error: function (xhr) {
+                    alert("Error updating ticket: " + xhr.responseText);
+                }
+            });
+        });
+
+        // Lọc vé theo ngày
+        $("#filterTicketForm").submit(function (event) {
+            event.preventDefault();
+            let startDate = $("#startDate").val();
+            let endDate = $("#endDate").val();
+
+            $.ajax({
+                url: `https://localhost:7279/api/BookingPayment/filter?startDate=${startDate}&endDate=${endDate}`,
+                type: "GET",
+                dataType: "json",
+                success: function (bookings) {
+                    let rows = bookings.map(booking => `
+                        <tr>
+                            <td>${booking.bookingId}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    ${booking.movieImage ? `<img src="${booking.movieImage}" class="me-2" alt="${booking.movieTitle}" style="width: 50px; height: auto;">` : ''}
+                                    ${booking.movieTitle}
+                                </div>
+                            </td>
+                            <td>${booking.cinemaName}</td>
+                            <td>${new Date(booking.showDate).toLocaleDateString()}</td>
+                            <td>${new Date(booking.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                            <td>${booking.seatNumbers}</td>
+                            <td>${booking.totalAmount.toLocaleString()} VND</td>
+                            <td>${booking.paymentMethod}</td>
+                            <td>${new Date(booking.bookingTime).toLocaleString()}</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm edit-ticket" data-id="${booking.bookingId}">Edit</button>
+                                <button class="btn btn-danger btn-sm delete-ticket" data-id="${booking.bookingId}">Delete</button>
+                            </td>
+                        </tr>`).join("");
+                    $("#ticketTableBody").html(rows);
+                    $("#filterTicketModal").modal("hide");
+                },
+                error: function (xhr) {
+                    alert("Error when filtering tickets by date: " + xhr.responseText);
+                }
+            });
+        });
+    });
+</script>

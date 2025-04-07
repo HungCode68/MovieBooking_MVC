@@ -1,0 +1,149 @@
+﻿@using MovieBookingMVC.Models
+@model Statistical
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="text-white">Statistics Management</h2>
+
+    <div class="btn-group mb-3">
+        <a href="@Url.Action("Movies", "Manage")" class="btn btn-outline-light">Movie Manage</a>
+        <a href="@Url.Action("Showtimes", "Manage")" class="btn btn-outline-light">Showtime Manage</a>
+        <a href="@Url.Action("Seats", "Manage")" class="btn btn-outline-light">Seat Manage</a>
+        <a href="@Url.Action("Rooms", "Manage")" class="btn btn-outline-light">Room Manage</a>
+        <a href="@Url.Action("Tickets", "Manage")" class="btn btn-outline-light">Ticket Manage</a>
+        <a href="@Url.Action("Users", "Manage")" class="btn btn-outline-light">User Manage</a>
+        <a href="@Url.Action("UserDetails", "Manage")" class="btn btn-outline-light">UserDetail Manage</a>
+        <a href="@Url.Action("Statistical", "Manage")" class="btn btn-primary">Statistical Manage</a>
+
+    </div>
+
+    <!-- Nút mở modal lọc -->
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#filterStatisticalModal">📊 Filter Statistics</button>
+    <button class="btn btn-info mb-3" data-bs-toggle="modal" data-bs-target="#revenueStatisticalModal">💰 Revenue statistics by movie</button>
+    <!-- Bảng hiển thị thống kê -->
+    <div class="table-responsive">
+        <table class="table table-dark table-bordered text-white">
+            <thead>
+                <tr>
+                    <th>Total User</th>
+                    <th>Total Movie</th>
+                    <th>Total ShowTime</th>
+                    <th>Total Ticket Sold</th>
+                    <th>Total Revenue (VND)</th>
+                    <th>Total Bookings</th>
+                    <th>Total Seat</th>
+                    <th>Total Seats Booked</th>
+                    <th>Total Payment</th>
+                    <th>Last Update</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>@Model.TotalUsers</td>
+                    <td>@Model.TotalMovies</td>
+                    <td>@Model.TotalShowtimes</td>
+                    <td>@Model.TotalTicketsSold</td>
+                    <td>@Model.TotalRevenue.ToString("N0")</td>
+                    <td>@Model.TotalBookings</td>
+                    <td>@Model.TotalSeats</td>
+                    <td>@Model.TotalSeatsBooked</td>
+                    <td>@Model.TotalPayments</td>
+                    <td>@Model.LastUpdated.ToString("yyyy-MM-dd HH:mm")</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Lọc Thống Kê -->
+<div class="modal fade" id="filterStatisticalModal" tabindex="-1" aria-labelledby="filterStatisticalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-dark" id="filterStatisticalLabel">Filter Statistics</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark">
+                <form id="filterStatisticalForm">
+                    <div class="mb-3">
+                        <label class="form-label">From Date</label>
+                        <input type="date" class="form-control" id="startDate">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">To Date</label>
+                        <input type="date" class="form-control" id="endDate">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Apply</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Thống Kê Doanh Thu -->
+<div class="modal fade" id="revenueStatisticalModal" tabindex="-1" aria-labelledby="revenueStatisticalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-dark" id="revenueStatisticalLabel">Revenue statistics by movie</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark">
+                <div class="table-responsive">
+                    <table class="table table-dark table-bordered text-white">
+                        <thead>
+                            <tr>
+                                <th>ID Movie</th>
+                                <th>Movie Title</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var movie in Model.RevenueByMovie)
+                            {
+                                <tr>
+                                    <td>@movie.MovieId</td>
+                                    <td>@movie.MovieTitle</td>
+                                    <td>@movie.TotalRevenue.ToString("C")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="text-white">Highest grossing film:</h3>
+                <div class="card bg-success text-white p-3">
+                    <h4>@Model.HighestRevenueMovie.MovieTitle</h4>
+                    <p>Revenue: @Model.HighestRevenueMovie.TotalRevenue.ToString("C")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script xử lý AJAX -->
+<script>
+    $(document).ready(function () {
+        $("#filterStatisticalForm").submit(function (event) {
+            event.preventDefault();
+
+            var startDate = $("#startDate").val();
+            var endDate = $("#endDate").val();
+
+            if (!startDate || !endDate) {
+                alert("Please enter full start and end date!");
+                return;
+            }
+
+            $.get(`/Manage/Statistical?startDate=${startDate}&endDate=${endDate}`, function (data) {
+                var newContent = $(data).find(".table-responsive").html();
+                $(".table-responsive").html(newContent);
+                $("#filterStatisticalModal").modal("hide");
+            }).fail(function () {
+                alert("Unable to load statistics.");
+            });
+        });
+    });
+</script>

@@ -1,0 +1,275 @@
+﻿@model List<MovieBookingMVC.Models.Cinema>
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center">Screening Room Manager</h2>
+    
+    <!-- Menu Chuyển Đổi Giữa Các Trang -->
+    <div class="btn-group mb-3">
+        <a href="@Url.Action("Movies", "Manage")" class="btn btn-outline-light">Movie Manage</a>
+        <a href="@Url.Action("Showtimes", "Manage")" class="btn btn-outline-light">Showtime Manage</a>
+        <a href="@Url.Action("Seats", "Manage")" class="btn btn-outline-light">Seat Manage</a>
+        <a href="@Url.Action("Rooms", "Manage")" class="btn btn-primary">Room Manage</a>
+        <a href="@Url.Action("Tickets", "Manage")" class="btn btn-outline-light">Ticket Manage</a>
+        <a href="@Url.Action("Users", "Manage")" class="btn btn-outline-light">User Manage</a>
+        <a href="@Url.Action("UserDetails", "Manage")" class="btn btn-outline-light">UserDetail Manage</a>
+        <a href="@Url.Action("Statistical", "Manage")" class="btn btn-outline-light">Statistical Manage</a>
+
+    </div>
+    
+    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#roomModal">Add Room</button>
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#seatModal">Add Seat</button>
+    <div class="table-responsive">
+        <table class="table table-dark table-bordered text-white">
+            <thead class="thead-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Room name</th>
+                    <th>Number room</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="roomTableBody">
+                @foreach (var room in Model)
+                {
+                    <tr>
+                        <td>@room.Id</td>
+                        <td>@room.Name</td>
+                        <td>@room.NumberRoom</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm text-dark edit-room" data-id="@room.Id">Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="confirmDelete(@room.Id)">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal thêm phòng -->
+<div id="roomModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Screening Room</h5>
+                <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label text-dark" for="roomName">Name Room:</label>
+                <select id="roomName" class="form-control">
+                    <option value="BASIC Room">BASIC Room</option>
+                    <option value="STANDARD Room">STANDARD Room</option>
+                    <option value="VIP Room">VIP Room</option>
+                </select>
+
+                <label class="form-label text-dark" for="numberRoom">Number Room:</label>
+                <input type="text" id="numberRoom" class="form-control" required />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveRoom()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editRoomModal" tabindex="-1" aria-labelledby="editRoomLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editRoomLabel">Edit Screening Room</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editRoomId">
+                <div class="mb-3">
+                    <label for="editRoomName" class="form-label">Name Room</label>
+                    <input type="text" class="form-control" id="editRoomName">
+                </div>
+                <div class="mb-3">
+                    <label for="editNumberRoom" class="form-label">Number Room</label>
+                    <input type="text" class="form-control" id="editNumberRoom">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="saveRoomChanges">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal thêm ghế -->
+<div id="seatModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Seats</h5>
+                <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label text-dark" for="selectShowtime">Choose Showtime:</label>
+                <select id="selectShowtime" class="form-control"></select>
+
+                <label class="form-label text-dark" for="selectRoom">Choose Screening Room:</label>
+                <select id="selectRoom" class="form-control"></select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="createSeats()">Add Seat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+       function saveRoom() {
+        let roomData = {
+            name: $("#roomName").val(),
+            numberRoom: $("#numberRoom").val()
+        };
+
+        $.ajax({
+            url: "https://localhost:7279/api/cinemas",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(roomData),
+            dataType: "json",
+            success: function (response) {
+                alert("The room has been created successfully!");
+                location.reload();
+            },
+            error: function (xhr) {
+                console.error("Error when adding room:", xhr.responseText);
+                alert("Error when adding room: " + (xhr.responseJSON?.message || "Adding room fails"));
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        loadShowtimes();
+        loadRooms();
+    });
+
+    function loadShowtimes() {
+        $.ajax({
+            url: "https://localhost:7279/api/showtimes",
+            type: "GET",
+            success: function (data) {
+                let select = $("#selectShowtime");
+                select.empty();
+                data.forEach(item => {
+                    select.append(`<option value="${item.id}">${item.movieTitle} - ${item.showDate}</option>`);
+                });
+            },
+            error: function () {
+                alert("Unable to load screening list");
+            }
+        });
+    }
+
+    function loadRooms() {
+        $.ajax({
+            url: "https://localhost:7279/api/cinemas",
+            type: "GET",
+            success: function (data) {
+                let select = $("#selectRoom");
+                select.empty();
+                data.forEach(item => {
+                    select.append(`<option value="${item.id}">${item.name} (Room ${item.numberRoom})</option>`);
+                });
+            },
+            error: function () {
+                alert("Unable to load theater list");
+            }
+        });
+    }
+
+        function createSeats() {
+        let cinemaId = $("#selectRoom").val();
+        let showtimeId = $("#selectShowtime").val();
+
+        $.ajax({
+            url: `https://localhost:7279/api/seats/create-default/${cinemaId}/${showtimeId}`,
+            type: "POST",
+            success: function () {
+                alert("50 Seats have been successfully created!");
+                location.reload();
+            },
+            error: function () {
+                alert("Error creating chair!");
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        $(".edit-room").click(function () {
+            var roomId = $(this).data("id");
+
+            $.ajax({
+                url: `/Manage/GetRoom/${roomId}`,
+                type: "GET",
+                success: function (room) {
+                    $("#editRoomId").val(room.id);
+                    $("#editRoomName").val(room.name);
+                    $("#editNumberRoom").val(room.numberRoom);
+                    $("#editRoomModal").modal("show");
+                },
+                error: function () {
+                    alert("Unable to load room data.");
+                }
+            });
+        });
+
+        $("#saveRoomChanges").click(function () {
+            var roomId = $("#editRoomId").val();
+            var updatedCinema = {
+                id: roomId,
+                name: $("#editRoomName").val(),
+                numberRoom: $("#editNumberRoom").val()
+            };
+
+            $.ajax({
+                url: `/Manage/UpdateRoom/${roomId}`,
+                type: "PUT",
+                contentType: "application/json",
+                data: JSON.stringify(updatedCinema),
+                success: function () {
+                    alert("Updated successfully!");
+                    location.reload();
+                },
+                error: function () {
+                    alert("Error updating room.");
+                }
+            });
+        });
+    });
+
+    function confirmDelete(roomId) {
+        if (confirm("Are you sure you want to delete this room??")) {
+            fetch(`/Manage/DeleteRoom/${roomId}`, {
+                method: "DELETE"
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("Delete Successful!");
+                    location.reload();
+                } else {
+                    alert("Error while deleting room.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Error while deleting room.");
+            });
+        }
+    }
+
+</script>
+<style>
+    .modal-content {
+        color: black;
+    }
+</style>

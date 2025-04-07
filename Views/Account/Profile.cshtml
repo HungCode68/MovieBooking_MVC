@@ -1,0 +1,161 @@
+﻿@model MovieBookingMVC.Models.UserDetails
+
+<style>
+    .account-container {
+        max-width: 1000px;
+        margin: 40px auto;
+    }
+
+    .account-title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #e74c3c;
+        margin-bottom: 30px;
+    }
+
+    .side-menu .list-group-item {
+        cursor: pointer;
+    }
+
+        .side-menu .list-group-item.active {
+            background-color: #e74c3c;
+            border-color: #e74c3c;
+        }
+
+    .user-avatar {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid #ccc;
+        margin-right: 20px;
+    }
+
+    .info-block {
+        background: #f9f9f9;
+        border-radius: 10px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        margin-bottom: 30px;
+    }
+
+        .info-block h3 {
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            color: black;
+        }
+
+        .info-block p {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .info-block strong {
+            color: #2c3e50;
+        }
+
+    .benefit-item {
+        text-align: center;
+    }
+
+        .benefit-item p {
+            margin: 0;
+        }
+
+    .btn-change {
+        margin-top: 10px;
+    }
+
+    .account-detail-label {
+        min-width: 120px;
+        display: inline-block;
+        font-weight: bold;
+    }
+</style>
+
+<div class="container account-container">
+    <h2 class="account-title">CGV ACCOUNT</h2>
+
+    <div class="row">
+        <!-- Sidebar menu -->
+        <div class="col-md-3">
+            <ul class="list-group side-menu">
+                <li class="list-group-item active" id="tab-info">GENERAL INFORMATION</li>
+                <li class="list-group-item" id="tab-history">TRANSACTION HISTORY</li>
+            </ul>
+        </div>
+
+        <!-- Main content -->
+        <div class="col-md-9" id="info-section">
+            <!-- General Info -->
+            <div class="info-block">
+                <h3>GENERAL INFORMATION</h3>
+                <div class="d-flex align-items-center mb-3">
+                    <img src="https://via.placeholder.com/100" class="user-avatar" alt="User Avatar">
+                    <div>
+                        <button class="btn btn-outline-secondary">Change Avatar</button>
+                    </div>
+                </div>
+                <p><strong>Hello @Model.User.FullName,</strong></p>
+                <p>With this page, you can manage all your account information efficiently and securely.</p>
+            </div>
+
+            <!-- Membership Info -->
+            <div class="info-block">
+                <div class="row">
+                    <div class="col-md-4">
+                        <p><strong>Card Level:</strong> @Model.MembershipLevel</p>
+                        <p><strong>Total Spending:</strong> @Model.TotalSpent VND</p>
+                        <p><strong>CGV Points:</strong> @Model.CGVPoints</p>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row text-center">
+                            <div class="col-md-3 benefit-item">
+                                <p>🎁</p>
+                                <p>Gift Cards</p>
+                                <p><strong>@Model.GiftCards</strong></p>
+                                <button class="btn btn-primary btn-sm btn-change">View</button>
+                            </div>
+                            <div class="col-md-3 benefit-item">
+                                <p>🎟️</p>
+                                <p>Vouchers</p>
+                                <p><strong>@Model.Vouchers</strong></p>
+                                <button class="btn btn-primary btn-sm btn-change">View</button>
+                            </div>
+                            <div class="col-md-3 benefit-item">
+                                <p>🔖</p>
+                                <p>Coupons</p>
+                                <p><strong>@Model.Coupons</strong></p>
+                                <button class="btn btn-primary btn-sm btn-change">View</button>
+                            </div>
+                            <div class="col-md-3 benefit-item">
+                                <p>💳</p>
+                                <p>Member Cards</p>
+                                <p><strong>@Model.MemberCards</strong></p>
+                                <button class="btn btn-primary btn-sm btn-change">View</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Details -->
+            <div class="info-block">
+                <h3>ACCOUNT INFORMATION</h3>
+                <p><span class="account-detail-label">Name:</span> @(Model?.User?.FullName ?? "Unknown")</p>
+                <p><span class="account-detail-label">Email:</span> @(Model?.User?.Email ?? "No email")</p>
+                <p><span class="account-detail-label">Phone:</span> @(Model?.PhoneNumber ?? "Not updated")</p>
+
+                <button class="btn btn-outline-secondary">Change</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("tab-history").addEventListener("click", function () {
+        window.location.href = "@Url.Action("TransactionHistory", "Account")";
+    });
+</script>

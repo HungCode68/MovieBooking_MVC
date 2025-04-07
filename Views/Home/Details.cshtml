@@ -1,0 +1,102 @@
+﻿@model MovieBookingMVC.Models.Movies
+
+@{
+    ViewData["Title"] = "Movies Detail";
+}
+<style>
+    .movie-container {
+        display: flex;
+        gap: 20px;
+    }
+</style>
+<div class="container">
+    <div class="movie-container">
+        <img src="@Model.ImageUrl" class="img-fluid" alt="@Model.Title">
+        <div class="movie-info">
+            <h2>@Model.Title</h2>
+            <p><strong>Release Date:</strong> @Model.ReleaseDate</p>
+            <p><strong>Duration:</strong> @Model.Duration</p>
+            <p><strong>Description:</strong>@Model.Description </p>
+        </div>
+    </div>
+
+    <div class="booking-section">
+        <h3>Booking Ticket</h3>
+
+        <label for="showDate">Choose date:</label>
+        <input type="date" id="showDate" class="form-control" required />
+
+        <label for="cinemaRoom">Choose room:</label>
+        <select id="cinemaRoom" class="form-select">
+            <option value="">Choose room</option>
+        </select>
+
+        <label for="showtime">Choose showtime:</label>
+        <select id="showtime" class="form-select">
+            <option value="">Choose showtime</option>
+        </select>
+
+        <button id="confirmBooking" class="btn btn-primary mt-3">Confirm</button>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let movieId = @Model.Id;  // Lấy ID của phim từ model
+
+        document.getElementById("showDate").addEventListener("change", fetchRooms);
+        document.getElementById("cinemaRoom").addEventListener("change", fetchShowtimes);
+        document.getElementById("confirmBooking").addEventListener("click", confirmBooking);
+
+        function fetchRooms() {
+            let selectedDate = document.getElementById("showDate").value;
+            if (!selectedDate) return;
+
+            fetch(`https://localhost:7279/api/showtimes/GetRoomsByMovie?movieId=${movieId}&date=${selectedDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    let roomSelect = document.getElementById("cinemaRoom");
+                    roomSelect.innerHTML = '<option value="">Choose room</option>';
+                    data.forEach(room => {
+                        let option = document.createElement("option");
+                        option.value = room.cinemaId;  // Sửa thành cinemaId
+                        option.textContent = room.numberRoom;
+                        roomSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error("Error loading room:", error));
+        }
+
+        function fetchShowtimes() {
+            let selectedRoom = document.getElementById("cinemaRoom").value;
+            let selectedDate = document.getElementById("showDate").value;
+            if (!selectedRoom || !selectedDate) return;
+
+            fetch(`https://localhost:7279/api/showtimes/GetShowtimesByMovie?movieId=${movieId}&date=${selectedDate}&roomId=${selectedRoom}`)
+                .then(response => response.json())
+                .then(data => {
+                    let showtimeSelect = document.getElementById("showtime");
+                    showtimeSelect.innerHTML = '<option value="">Choose showtime</option>';
+                    if (data.length === 0) {
+                        showtimeSelect.innerHTML += '<option value="">No showtimes</option>';
+                    }
+                    data.forEach(showtime => {
+                        let option = document.createElement("option");
+                        option.value = showtime.id;
+                        option.textContent = showtime.time;
+                        showtimeSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error("Error loading showtime:", error));
+        }
+
+        function confirmBooking() {
+            let selectedShowtime = document.getElementById("showtime").value;
+            if (!selectedShowtime) {
+                alert("Please select a screening time before booking.");
+                return;
+            }
+            window.location.href = `/Booking/SeatSelection?showtimeId=${selectedShowtime}`;
+        }
+    });
+</script>
+

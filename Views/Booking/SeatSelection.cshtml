@@ -1,0 +1,152 @@
+﻿@model MovieBookingMVC.ViewModels.SeatSelectionViewModel
+
+<h2 class="text-center font-bold text-2xl mb-4 text-blue-600">CHOOSE SEAT FOR SHOWTIME</h2>
+
+<div class="screen bg-gray-800 text-center p-2 font-bold text-lg text-white rounded-md shadow-lg">
+    SCREEN
+</div>
+
+<div class="seats-container grid gap-2 justify-center mt-6">
+    @for (int row = 0; row < Model.SeatLayout.Count; row++)
+    {
+        <div class="seat-row flex gap-3 justify-center">
+            @for (int col = 0; col < Model.SeatLayout[row].Count; col++)
+            {
+                var seat = Model.SeatLayout[row][col];
+                string seatClass = seat.IsBooked ? "seat booked" :
+                (seat.SeatType == "VIP" ? "seat vip" : "seat standard");
+
+                <button class="@seatClass text-sm font-bold border rounded-md px-4 py-2 shadow-md transition-all duration-300"
+                        onclick="selectSeat(@seat.Id)"
+                @(seat.IsBooked ? "disabled" : "")>
+                    @seat.SeatNumber
+                </button>
+            }
+        </div>
+    }
+</div>
+
+<div class="ticket-info mt-6 p-4 bg-gray-100 rounded-lg shadow-md">
+    <h3 class="font-semibold text-lg text-blue-700">Ticket Information</h3>
+    <p><strong>Movie:</strong> @Model.MovieTitle</p>
+    <p><strong>Room:</strong> @Model.CinemaRoom</p>
+    <p><strong>ShowTime:</strong> @Model.Showtime</p>
+    <p><strong>Total Price:</strong> <span id="totalPrice">0</span> VNĐ</p>
+</div>
+
+<button class="confirm-btn mt-4 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-bold shadow-md transition-all duration-300"
+        onclick="confirmBooking(@Model.ShowtimeId)">
+    Confirm Booking
+</button>
+
+<style>
+    .seats-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .seat-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .seat {
+        width: 50px;
+        height: 50px;
+        text-align: center;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: bold;
+        border-radius: 8px;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+
+        .seat.standard {
+            background-color: #28a745; /* Xanh lá */
+            color: white;
+        }
+
+        .seat.vip {
+            background-color: #ffcc00; /* Vàng VIP */
+            color: black;
+        }
+
+        .seat.booked {
+            background-color: #6c757d; /* Xám */
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .seat.selected {
+            background-color: #007bff !important; /* Xanh nước biển */
+            color: white;
+        }
+
+        .seat:hover {
+            transform: scale(1.1);
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+    .confirm-btn {
+        display: block;
+        width: 100%;
+        max-width: 300px;
+        text-align: center;
+        margin: auto;
+        background-color: #007bff; /* Xanh nước biển */
+        color: white;
+        font-weight: bold;
+        padding: 12px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+        .confirm-btn:hover {
+            background-color: #0056b3; /* Xanh nước biển đậm */
+            transform: scale(1.05);
+        }
+
+</style>
+
+<script>
+    let selectedSeats = [];
+    let totalPrice = 0;
+    const seatPrice = 50000;
+    const vipSeatPrice = 80000;
+
+    function selectSeat(seatId) {
+        let seat = document.querySelector(`[onclick='selectSeat(${seatId})']`);
+        let index = selectedSeats.indexOf(seatId);
+
+        if (index > -1) {
+            seat.classList.remove("selected");
+            selectedSeats.splice(index, 1);
+            totalPrice -= seat.classList.contains("vip") ? vipSeatPrice : seatPrice;
+        } else {
+            seat.classList.add("selected");
+            selectedSeats.push(seatId);
+            totalPrice += seat.classList.contains("vip") ? vipSeatPrice : seatPrice;
+        }
+        document.getElementById("totalPrice").textContent = totalPrice.toLocaleString();
+    }
+
+    async function confirmBooking(showtimeId) {
+        if (selectedSeats.length === 0) {
+            alert("You haven't chosen a chair yet!");
+            return;
+        }
+
+        const queryString = new URLSearchParams({
+            showtimeId: showtimeId,
+            seatIds: selectedSeats.join(','),
+            totalPrice: totalPrice
+        }).toString();
+
+        window.location.href = `/Booking/Checkout?${queryString}`;
+    }
+</script>
+
+

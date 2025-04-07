@@ -1,0 +1,142 @@
+﻿@model MovieBookingMVC.ViewModels.CheckoutViewModel
+@using Newtonsoft.Json;
+
+<h2 class="text-center font-bold text-2xl mb-6 text-gray-800">CONFIRM BOOKING & PAYMENT</h2>
+
+<div class="checkout-container bg-white p-6 rounded-lg shadow-lg border border-gray-200 max-w-md mx-auto">
+    <h3 class="font-bold text-lg mb-4 text-black">Ticket booking information</h3>
+
+    <div class="space-y-2 text-black">
+        <p><strong>Movie:</strong> @Model.MovieTitle</p>
+        <p><strong>Room:</strong> @Model.CinemaRoom</p>
+        <p><strong>Showtime:</strong> @Model.Showtime</p>
+        <p><strong>Seat:</strong> @string.Join(", ", Model.SeatNumbers)</p>
+        <p class="text-lg font-bold text-red-600 mt-4">Total amount: <span id="finalTotal">@Model.TotalPrice.ToString("N0") VNĐ</span></p>
+    </div>
+
+    <h3 class="font-bold text-lg mt-6 text-black">Choose payment method</h3>
+    <div class="payment-options flex justify-center gap-4 mt-4">
+        <button class="payment-btn" onclick="selectPayment('Visa')">
+            <img src="/images/visa.png" alt="Visa">
+        </button>
+        <button class="payment-btn" onclick="selectPayment('Momo')">
+            <img src="/images/momo.png" alt="Momo">
+        </button>
+        <button class="payment-btn" onclick="selectPayment('InternetBanking')">
+            <img src="/images/banking.jpg" alt="Internet Banking">
+        </button>
+    </div>
+
+    <input type="hidden" id="selectedPaymentMethod" value="">
+    <input type="hidden" id="totalPriceInput" name="TotalPrice" value="@Model.TotalPrice" />
+
+    <button id="btnConfirmPayment" class="btn-confirm w-full mt-6 py-3 text-white text-lg font-bold rounded-lg transition-all duration-300"
+            data-showtime-id="@Model.ShowtimeId"
+            data-selected-seats='@JsonConvert.SerializeObject(Model.SelectedSeats)'>
+        Payment
+    </button>
+
+</div>
+<style>
+    .checkout-container {
+        background-color: #f9f9f9;
+        padding: 24px;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .payment-options {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+    }
+
+        .payment-options .payment-btn {
+            width: 100px;
+            height: 80px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+            .payment-options .payment-btn img {
+                width: 70px; /* Chỉnh kích thước ảnh cho đẹp */
+                height: 50px;
+                object-fit: contain;
+            }
+
+            .payment-options .payment-btn:hover {
+                background-color: #e3f2fd;
+                transform: scale(1.05);
+                border-color: #007bff;
+            }
+
+    .btn-confirm {
+        background-color: #007bff;
+        box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2);
+        color: white !important;
+    }
+
+        .btn-confirm:hover {
+            background-color: #0056b3;
+            transform: scale(1.03);
+        }
+
+    p, h3, .payment-options button {
+        color: black !important;
+    }
+</style>
+
+<script>
+        document.addEventListener("DOMContentLoaded", function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const totalPrice = urlParams.get("totalPrice");
+        if (totalPrice) {
+            document.getElementById("finalTotal").textContent = Number(totalPrice).toLocaleString() + " VNĐ";
+            document.getElementById("totalPriceInput").value = totalPrice;
+        }
+
+        // Xử lý chọn phương thức thanh toán
+        document.querySelectorAll(".payment-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                const method = this.getAttribute("onclick").match(/'([^']+)'/)[1]; // Lấy phương thức thanh toán từ onclick
+                document.getElementById("selectedPaymentMethod").value = method;
+                alert("You have chosen a payment method: " + method);
+            });
+        });
+
+        // Xử lý thanh toán
+        document.getElementById("btnConfirmPayment").addEventListener("click", async function () {
+            let paymentMethod = document.getElementById("selectedPaymentMethod").value;
+            if (!paymentMethod) {
+                alert("Please choose a payment method!");
+                return;
+            }
+
+            let selectedSeats = JSON.parse(this.dataset.selectedSeats);
+              let totalPrice = document.getElementById("totalPriceInput").value;
+            const response = await fetch('/Booking/ProcessPayment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    showtimeId: this.dataset.showtimeId,
+                    selectedSeats: selectedSeats,
+                    paymentMethod: paymentMethod,
+                    totalPrice: totalPrice
+                })
+            });
+
+            if (response.ok) {
+                window.location.href = "/Booking/Success?totalPrice="+ totalPrice;
+            } else {
+                alert("Payment failed!");
+            }
+        });
+    });
+
+
+</script>

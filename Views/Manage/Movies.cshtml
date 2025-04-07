@@ -1,0 +1,259 @@
+﻿@model List<Movies>
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml"; // Kế thừa layout chính
+}
+
+<div class="container mt-4">
+    <h2 class="text-white">Movie Management</h2>
+
+    <!-- Menu Chuyển Đổi Giữa Các Trang -->
+    <div class="btn-group mb-3">
+        <a href="@Url.Action("Movies", "Manage")" class="btn btn-primary">Movie Manage</a>
+        <a href="@Url.Action("Showtimes", "Manage")" class="btn btn-outline-light">Showtime Manage</a>
+        <a href="@Url.Action("Seats", "Manage")" class="btn btn-outline-light">Seat Manage</a>
+        <a href="@Url.Action("Rooms", "Manage")" class="btn btn-outline-light">Room Manage</a>
+        <a href="@Url.Action("Tickets", "Manage")" class="btn btn-outline-light">Ticket Manage</a>
+        <a href="@Url.Action("Users", "Manage")" class="btn btn-outline-light">User Manage</a>
+        <a href="@Url.Action("UserDetails", "Manage")" class="btn btn-outline-light">UserDetail Manage</a>
+        <a href="@Url.Action("Statistical", "Manage")" class="btn btn-outline-light">Statistical Manage</a>
+
+    </div>
+
+    <!-- Nút Thêm Phim (Mở Modal) -->
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addMovieModal">Add movie</button>
+
+    <!-- Bảng hiển thị danh sách phim -->
+    <div class="table-responsive">
+        <table class="table table-dark table-bordered text-white">
+            <thead class="thead-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="movieTableBody">
+                @foreach (var movie in Model)
+                {
+                    <tr>
+                        <td>@movie.Id</td>
+                        <td>@movie.Title</td>
+                        <td>@movie.Genre</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm edit-movie" data-id="@movie.Id">Edit</button>
+                            <button class="btn btn-danger btn-sm text-white delete-movie" data-id="@movie.Id">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Thêm Phim -->
+<div class="modal fade" id="addMovieModal" tabindex="-1" aria-labelledby="addMovieModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addMovieModalLabel">Add New Movies</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark">
+                <form id="addMovieForm">
+                    <div class="mb-3">
+                        <label for="title" class="form-label text-dark">Title</label>
+                        <input type="text" class="form-control text-dark" id="title" placeholder="Enter title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label text-dark">Description</label>
+                        <input type="text" class="form-control text-dark" id="description" placeholder="Enter description" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="genre" class="form-label text-dark">Genre</label>
+                        <input type="text" class="form-control text-dark" id="genre" placeholder="Enter genre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="duration" class="form-label text-dark">Duration (minutes)</label>
+                        <input type="number" class="form-control text-dark" id="duration" placeholder="Enter duration" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="releaseDate" class="form-label text-dark">Release date</label>
+                        <input type="date" class="form-control text-dark" id="releaseDate" placeholder="Enter release date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="imageUrl" class="form-label text-dark">Image URL</label>
+                        <input type="url" class="form-control text-dark" id="imageUrl" placeholder="Enter URL">
+                    </div>
+                    <div class="mb-3">
+                        <label for="trailerUrl" class="form-label text-dark">Trailer URL</label>
+                        <input type="url" class="form-control text-dark" id="trailerUrl" placeholder="Enter URL">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add movie</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Chỉnh Sửa Phim -->
+<div class="modal fade" id="editMovieModal" tabindex="-1" aria-labelledby="editMovieModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editMovieModalLabel">Edit Movies</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark">
+                <form id="editMovieForm">
+                    <input type="hidden" id="editMovieId">
+
+                    <div class="mb-3">
+                        <label for="editTitle" class="form-label text-dark">Title</label>
+                        <input type="text" class="form-control" id="editTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDescription" class="form-label text-dark">Description</label>
+                        <textarea class="form-control" id="editDescription" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editGenre" class="form-label text-dark">Genre</label>
+                        <input type="text" class="form-control" id="editGenre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDuration" class="form-label text-dark">Duration (minute)</label>
+                        <input type="number" class="form-control" id="editDuration" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editReleaseDate" class="form-label text-dark">Release date</label>
+                        <input type="date" class="form-control" id="editReleaseDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editImageUrl" class="form-label text-dark">URL Image</label>
+                        <input type="url" class="form-control" id="editImageUrl" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editTrailerUrl" class="form-label text-dark">URL Trailer</label>
+                        <input type="url" class="form-control" id="editTrailerUrl" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript để xử lý thêm phim và xóa phim bằng AJAX -->
+<script>
+    $(document).ready(function () {
+        // Thêm phim bằng AJAX
+        $("#addMovieForm").submit(function (event) {
+            event.preventDefault(); // Ngăn chặn load lại trang
+
+               var movieData = {
+        title: $("#title").val(),
+        description: $("#description").val(), // Thêm dòng này
+        genre: $("#genre").val(),
+        duration: parseInt($("#duration").val()),
+        releaseDate: $("#releaseDate").val(),
+        imageUrl: $("#imageUrl").val(),
+        trailerUrl: $("#trailerUrl").val()
+    };
+
+            $.ajax({
+                url: "https://localhost:7279/api/movies",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(movieData),
+                success: function (response) {
+                    alert("More successful movies!");
+                    $("#addMovieModal").modal("hide"); // Đóng modal
+                    location.reload(); // Tải lại danh sách phim
+                },
+                error: function (error) {
+                    alert("Error adding movie: " + error.responseText);
+                }
+            });
+        });
+
+        
+    });
+
+    $(document).ready(function () {
+        // Khi bấm nút "Sửa", tải dữ liệu phim vào modal
+        $(".edit-movie").click(function () {
+            var movieId = $(this).data("id");
+
+            $.get(`https://localhost:7279/api/movies/${movieId}`, function (data) {
+                $("#editMovieId").val(data.id);
+                $("#editTitle").val(data.title);
+                $("#editDescription").val(data.description);
+                $("#editGenre").val(data.genre);
+                $("#editDuration").val(data.duration);
+                $("#editReleaseDate").val(data.releaseDate.split("T")[0]); // Định dạng yyyy-MM-dd
+                $("#editImageUrl").val(data.imageUrl);
+                $("#editTrailerUrl").val(data.trailerUrl);
+
+                $("#editMovieModal").modal("show");
+            });
+        });
+
+        // Xử lý form cập nhật phim
+        $("#editMovieForm").submit(function (event) {
+            event.preventDefault();
+
+            var movieData = {
+                id: $("#editMovieId").val(),
+                title: $("#editTitle").val(),
+                description: $("#editDescription").val(),
+                genre: $("#editGenre").val(),
+                duration: parseInt($("#editDuration").val()),
+                releaseDate: $("#editReleaseDate").val(),
+                imageUrl: $("#editImageUrl").val(),
+                trailerUrl: $("#editTrailerUrl").val()
+            };
+
+            $.ajax({
+                url: `https://localhost:7279/api/movies/${movieData.id}`,
+                type: "PUT",
+                contentType: "application/json",
+                data: JSON.stringify(movieData),
+                success: function () {
+                    alert("Movie update successful!");
+                    $("#editMovieModal").modal("hide");
+                    location.reload();
+                },
+                error: function (error) {
+                    alert("Error updating movies: " + error.responseText);
+                }
+            });
+        });
+    });
+
+    $(document).ready(function () {
+        // Xử lý sự kiện khi bấm vào nút xóa
+        $(".delete-movie").click(function () {
+            var movieId = $(this).data("id");
+
+            if (confirm("Are you sure you want to delete this movie??")) {
+                $.ajax({
+                    url: "https://localhost:7279/api/movies/" + movieId, // Gọi API trực tiếp
+                    type: "DELETE",
+                    success: function () {
+                        alert("Movie deleted successfully!");
+                        location.reload(); // Tải lại trang để cập nhật danh sách
+                    },
+                    error: function (error) {
+                        alert("Error while deleting movie: " + error.responseText);
+                    }
+                });
+            }
+        });
+    });
+</script>
+<style>
+    .modal-content{
+        color: black;
+    }
+</style>

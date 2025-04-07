@@ -1,0 +1,96 @@
+﻿@model List<BookingPaymentViewModel>
+
+<style>
+	.ticket-history-container {
+		max-width: 1000px;
+		margin: 40px auto;
+		padding: 20px;
+	}
+
+	.ticket-card {
+		display: flex;
+		gap: 20px;
+		padding: 20px;
+		margin-bottom: 20px;
+		border-radius: 10px;
+		border: 1px solid #ddd;
+		background-color: #fdfdfd;
+		box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+		transition: box-shadow 0.3s ease;
+	}
+
+		.ticket-card:hover {
+			box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+		}
+
+	.movie-poster {
+		width: 120px;
+		height: auto;
+		border-radius: 8px;
+		object-fit: cover;
+	}
+
+	.ticket-info {
+		flex-grow: 1;
+	}
+
+		.ticket-info h3 {
+			margin-top: 0;
+			font-size: 1.4rem;
+			color: #333;
+		}
+
+		.ticket-info p {
+			margin: 5px 0;
+			font-size: 0.95rem;
+			color: #555;
+		}
+
+			.ticket-info p strong {
+				color: #222;
+				min-width: 160px;
+				display: inline-block;
+			}
+
+	.no-history-message {
+		text-align: center;
+		padding: 60px 0;
+		font-size: 1.2rem;
+		color: #777;
+	}
+
+	.ticket-section-title {
+		font-size: 1.8rem;
+		margin-bottom: 30px;
+		text-align: center;
+		color: white;
+	}
+</style>
+
+<div class="ticket-history-container">
+	<h2 class="ticket-section-title">Transaction History</h2>
+
+	@if (!Model.Any())
+	{
+		<p class="no-history-message">You have not made any transactions.</p>
+	}
+	else
+	{
+		@foreach (var item in Model)
+		{
+			<div class="ticket-card">
+				<img src="@item.MovieImage" alt="@item.MovieTitle" class="movie-poster" />
+				<div class="ticket-info">
+					<h3>@item.MovieTitle</h3>
+					<p><strong>Cinema:</strong> @item.CinemaName</p>
+					<p><strong>Show Date:</strong> @item.ShowDate.ToString("dd/MM/yyyy")</p>
+					<p><strong>Hour:</strong> @item.StartTime.ToString(@"hh\:mm")</p>
+					<p><strong>Seats:</strong> @item.SeatNumbers</p>
+					<p><strong>Payment Method:</strong> @item.PaymentMethod</p>
+					<p><strong>Total:</strong> @item.TotalAmount.ToString("N0") VND</p>
+					<p><strong>Booking Date:</strong> @item.BookingTime.ToString("dd/MM/yyyy HH:mm")</p>
+				</div>
+			</div>
+		}
+	}
+</div>

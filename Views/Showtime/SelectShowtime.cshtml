@@ -1,0 +1,61 @@
+﻿@using MovieBookingMVC.ViewModels
+@model List<ShowtimeViewModel>
+
+<h2>Chọn suất chiếu</h2>
+<select id="selectDate" class="form-control">
+    <option value="">Chọn ngày</option>
+    @foreach (var showtime in Model.Select(s => s.Showtime).Distinct())
+    {
+        <option value="@showtime">@showtime.ToString("yyyy-MM-dd")</option>
+    }
+</select>
+
+<select id="selectRoom" class="form-control" disabled>
+    <option value="">Chọn phòng</option>
+</select>
+
+<div id="showtimeInfo"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let movieId = localStorage.getItem("selectedMovieId");
+        if (!movieId) {
+            alert("Không tìm thấy phim!");
+            window.location.href = "/Home/Index";
+            return;
+        }
+
+        document.getElementById("selectDate").addEventListener("change", function() {
+            let selectedDate = this.value;
+            fetch(`/Booking/GetShowtimesByDate?movieId=${movieId}&date=${selectedDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    let roomSelect = document.getElementById("selectRoom");
+                    roomSelect.innerHTML = `<option value="">Chọn phòng</option>`;
+                    data.forEach(showtime => {
+                        let option = document.createElement("option");
+                        option.value = showtime.roomId;
+                        option.textContent = `Phòng ${showtime.roomName}`;
+                        roomSelect.appendChild(option);
+                    });
+                    roomSelect.disabled = false;
+                });
+        });
+
+        document.getElementById("selectRoom").addEventListener("change", function() {
+            let roomId = this.value;
+            let selectedDate = document.getElementById("selectDate").value;
+            fetch(`/Booking/GetShowtimes?movieId=${movieId}&date=${selectedDate}&roomId=${roomId}`)
+                .then(response => response.json())
+                .then(data => {
+                    let showtimeInfo = document.getElementById("showtimeInfo");
+                    showtimeInfo.innerHTML = "";
+                    data.forEach(show => {
+                        let div = document.createElement("div");
+                        div.innerHTML = `<p>Suất chiếu: ${show.startTime}</p>`;
+                        showtimeInfo.appendChild(div);
+                    });
+                });
+        });
+    });
+</script>

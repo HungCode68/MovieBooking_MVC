@@ -1,0 +1,247 @@
+﻿@model List<MovieBookingMVC.Models.UserViewModel>
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="text-white">User Management</h2>
+
+    <div class="btn-group mb-3">
+        <a href="@Url.Action("Movies", "Manage")" class="btn btn-outline-light">Movie Manage</a>
+        <a href="@Url.Action("Showtimes", "Manage")" class="btn btn-outline-light">Showtime Manage</a>
+        <a href="@Url.Action("Seats", "Manage")" class="btn btn-outline-light">Seat Manage</a>
+        <a href="@Url.Action("Rooms", "Manage")" class="btn btn-outline-light">Room Manage</a>
+        <a href="@Url.Action("Tickets", "Manage")" class="btn btn-outline-light">Ticket Manage</a>
+        <a href="@Url.Action("Users", "Manage")" class="btn btn-primary">User Manage</a>
+        <a href="@Url.Action("UserDetails", "Manage")" class="btn btn-outline-light">UserDetail Manage</a>
+        <a href="@Url.Action("Statistical", "Manage")" class="btn btn-outline-light">Statistical Manage</a>
+
+    </div>
+
+    <!-- Nút mở modal thêm người dùng -->
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">Add User</button>
+
+    <!-- Bảng danh sách người dùng -->
+    <div class="table-responsive">
+        <table class="table table-dark table-bordered text-white">
+            <thead class="thead-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody">
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.Id</td>
+                        <td>@user.FullName</td>
+                        <td>@user.Email</td>
+                        <td>@user.Role</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm text-dark edit-user" data-id="@user.Id">Edit</button>
+                            <button class="btn btn-danger btn-sm delete-user" data-id="@user.Id">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal thêm người dùng -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-dark" id="addUserModalLabel">Add User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark">
+                <form id="addUserForm">
+                    <div class="mb-3">
+                        <label for="fullName" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="fullName" placeholder="Enter fullname" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" placeholder="Enter email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" placeholder="Enter password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Role</label>
+                        <select class="form-control" id="role" required>
+                            <option value="User">User</option>
+                            <option value="Staff">Staff</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add User</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Chỉnh Sửa Người Dùng -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserId">
+
+                    <div class="mb-3">
+                        <label for="editFullName" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="editFullName" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="editEmail" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editPassword" class="form-label">Password (Leave blank if not changed)</label>
+                        <input type="password" class="form-control" id="editPassword">
+                    </div>
+
+
+                    <div class="mb-3">
+                        <label for="editRole" class="form-label">Role</label>
+                        <select class="form-control" id="editRole">
+                            <option value="User">User</option>
+                            <option value="Staff">Staff</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- JavaScript xử lý AJAX -->
+<script>
+    $(document).ready(function () {
+        // Xử lý thêm người dùng
+        $("#addUserForm").submit(function (event) {
+            event.preventDefault();
+
+            var userData = {
+                FullName: $("#fullName").val(),
+                Email: $("#email").val(),
+                PasswordHash: $("#password").val(),
+                Role: $("#role").val()
+            };
+
+            $.ajax({
+                url: "https://localhost:7279/api/account/register",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(userData),
+                success: function () {
+                    alert("User added successfully!");
+                    $("#addUserModal").modal("hide");
+                    location.reload();
+                },
+                error: function (error) {
+                    alert("Error adding user: " + error.responseText);
+                }
+            });
+        });
+
+    });
+
+    $(document).ready(function () {
+        // Khi nhấn nút "Sửa", lấy dữ liệu người dùng từ API
+        $(".edit-user").click(function () {
+            var userId = $(this).data("id");
+
+            $.get(`https://localhost:7279/api/users/${userId}`, function (data) {
+                $("#editUserId").val(data.id);
+                $("#editFullName").val(data.fullName);
+                $("#editEmail").val(data.email);
+                $("#editPassword").val(""); // Để trống mật khẩu khi tải lên
+                $("#editRole").val(data.role);
+
+                $("#editUserModal").modal("show");
+            }).fail(function () {
+                alert("Unable to load user information.");
+            });
+        });
+
+        // Xử lý cập nhật người dùng
+        $("#editUserForm").submit(function (event) {
+            event.preventDefault();
+            var userId = $("#editUserId").val();
+            var password = $("#editPassword").val();
+
+            var updatedUser = {
+                id: userId,
+                fullName: $("#editFullName").val(),
+                email: $("#editEmail").val(),
+                role: $("#editRole").val()
+            };
+             if (password.trim() !== "") {
+                updatedUser.passwordHash = password; // Chỉ thêm password nếu có nhập
+            }
+
+            $.ajax({
+                url: `https://localhost:7279/api/users/${userId}`,
+                type: "PUT",
+                contentType: "application/json",
+                data: JSON.stringify(updatedUser),
+                success: function () {
+                    alert("User update successful!");
+                    $("#editUserModal").modal("hide");
+                    location.reload();
+                },
+                error: function (error) {
+                    alert("Error updating user: " + error.responseText);
+                }
+            });
+        });
+    });
+
+    $(document).ready(function () {
+        // Xử lý xóa tài khoản
+        $(".delete-user").click(function () {
+            var userId = $(this).data("id");
+
+            if (!confirm("Are you sure you want to delete this account??")) return;
+
+            $.ajax({
+                url: `https://localhost:7279/api/users/${userId}`,
+                type: "DELETE",
+                success: function () {
+                    alert("Account deleted successfully!");
+                    location.reload();
+                },
+                error: function (error) {
+                    alert("Error while deleting account: " + error.responseText);
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    .modal-content {
+        color: black;
+    }
+</style>

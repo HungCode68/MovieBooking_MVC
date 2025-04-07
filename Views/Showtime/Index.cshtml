@@ -1,0 +1,54 @@
+﻿@model List<MovieBookingMVC.ViewModels.ShowtimeViewModel>
+
+<h2 class="text-center text-light mb-4">Danh Sách Suất Chiếu</h2>
+
+<div class="table-responsive">
+    <table class="table text-center" style="background-color: #1e1e2f; border-radius: 10px; overflow: hidden;">
+        <thead class="text-light" style="background-color: #343a40;">
+            <tr>
+                <th>Phim</th>
+                <th>Ngày</th>
+                <th>Giờ Chiếu</th>
+                <th>Phòng</th>
+                <th>Giá</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody class="text-light">
+            @foreach (var showtime in Model)
+            {
+                <tr class="showtime-row">
+                    <td>@showtime.MovieTitle</td>
+                    <td>@DateTime.Parse(showtime.ShowDate).ToString("dd/MM/yyyy")</td>
+                    <td>
+                        @foreach (var time in showtime.Times)
+                        {
+                            <span class="badge bg-primary mx-1">@time</span>
+                        }
+                    </td>
+                    <td>@showtime.CinemaRoom</td>
+                    <td><strong>@string.Format("{0:N0} VND", showtime.Price)</strong></td>
+                    <td>
+                        <a href="@Url.Action("SeatSelection", "Booking", new { showtimeId = showtime.Id })"
+                           class="btn btn-success btn-sm fw-bold">
+                            <i class="fas fa-chair"></i> Chọn ghế
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>
+
+<!-- FontAwesome để hiển thị icon -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+<style>
+    /* Màu hover xanh nước biển */
+    .showtime-row:hover {
+        background-color: #007BFF !important; /* Màu xanh nước biển */
+        color: white !important;
+        transition: 0.3s ease-in-out;
+    }
+</style>

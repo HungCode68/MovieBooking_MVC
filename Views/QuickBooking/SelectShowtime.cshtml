@@ -1,0 +1,22 @@
+﻿@using MovieBookingMVC.ViewModels
+@model List<ShowtimeViewModel>
+
+<h2>Choose showtime</h2>
+
+@if (Model.Any())
+{
+    <ul class="list-group">
+        @foreach (var showtime in Model)
+        {
+            <li class="list-group-item">
+                <a asp-controller="Booking" asp-action="SeatSelection" asp-route-showtimeId="@showtime.Id">
+                    @showtime.Showtime.ToString("HH:mm") - Room @showtime.CinemaRoom
+                </a>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>There are no screenings.</p>
+}

@@ -1,0 +1,311 @@
+﻿@model List<MovieBookingMVC.Models.UserDetails>
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="text-white">Manage User Details</h2>
+    <div class="btn-group mb-3">
+        <a href="@Url.Action("Movies", "Manage")" class="btn btn-outline-light">Movie Manage</a>
+        <a href="@Url.Action("Showtimes", "Manage")" class="btn btn-outline-light">Showtime Manage</a>
+        <a href="@Url.Action("Seats", "Manage")" class="btn btn-outline-light">Seat Manage</a>
+        <a href="@Url.Action("Rooms", "Manage")" class="btn btn-outline-light">Room Manage</a>
+        <a href="@Url.Action("Tickets", "Manage")" class="btn btn-outline-light">Ticket Manage</a>
+        <a href="@Url.Action("Users", "Manage")" class="btn btn-outline-light">User Manage</a>
+        <a href="@Url.Action("UserDetails", "Manage")" class="btn btn-primary">UserDetail Manage</a>
+        <a href="@Url.Action("Statistical", "Manage")" class="btn btn-outline-light">Statistical Manage</a>
+
+    </div>
+
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addUserDetailModal">Add Detail</button>
+
+    <div class="table-responsive">
+        <table class="table table-dark table-bordered text-white">
+            <thead class="thead-light">
+                <tr>
+                    <th>ID</th>
+                    <th>User ID</th>
+                    <th>Number Phone</th>
+                    <th>Membership level</th>
+                    <th>Total Spent</th>
+                    <th>CGV Point</th>
+                    <th>Gift Card</th>
+                    <th>Voucher</th>
+                    <th>Coupon</th>
+                    <th>Membership card</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="userDetailTableBody">
+                @foreach (var detail in Model)
+                {
+                    <tr>
+                        <td>@detail.Id</td>
+                        <td>@detail.UserId</td>
+                        <td>@detail.PhoneNumber</td>
+                        <td>@detail.MembershipLevel</td>
+                        <td>@detail.TotalSpent.ToString("N0") VNĐ</td>
+                        <td>@detail.CGVPoints</td>
+                        <td>@detail.GiftCards</td>
+                        <td>@detail.Vouchers</td>
+                        <td>@detail.Coupons</td>
+                        <td>@detail.MemberCards</td>
+
+                        <td>
+                            <button class="btn btn-warning btn-sm edit-userdetail" data-id="@detail.UserId">Edit</button>
+                            <button class="btn btn-danger btn-sm delete-userdetail" data-id="@detail.Id">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Thêm Chi Tiết Người Dùng -->
+<div class="modal fade" id="addUserDetailModal" tabindex="-1" aria-labelledby="addUserDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUserDetailModalLabel">Add User Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark">
+                <form id="addUserDetailForm">
+                    <div class="mb-3">
+                        <label for="userId" class="form-label text-dark">User ID</label>
+                        <input type="number" class="form-control" id="userId" placeholder="Enter ID" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phoneNumber" class="form-label text-dark">Phone Number</label>
+                        <input type="text" class="form-control" id="phoneNumber" placeholder="Enter Phone Number" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="membershipLevel" class="form-label text-dark">Membership level</label>
+                        <select class="form-control" id="membershipLevel">
+                            <option value="Basic">Basic</option>
+                            <option value="Silver">Silver</option>
+                            <option value="Gold">Gold</option>
+                            <option value="Platinum">Platinum</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="totalSpent" class="form-label text-dark">Total Spent </label>
+                        <input type="number" class="form-control" id="totalSpent" placeholder="Enter Total Spent" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cgvPoints" class="form-label text-dark">CGV Point </label>
+                        <input type="number" class="form-control" id="cgvPoints" placeholder="Enter CGV Point" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="giftCards" class="form-label text-dark">Gift Card </label>
+                        <input type="text" class="form-control" id="giftCards" placeholder="Enter Gift Card" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="vouchers" class="form-label text-dark">Voucher </label>
+                        <input type="text" class="form-control" id="vouchers" placeholder="Enter Voucher" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="coupons" class="form-label text-dark">Coupons </label>
+                        <input type="text" class="form-control" id="coupons" placeholder="Enter coupons" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="memberCards" class="form-label text-dark">Membership card</label>
+                        <select class="form-control" id="memberCards">
+                            <option value="Basic">Basic</option>
+                            <option value="Standard">Standard</option>
+                            <option value="Vip">Vip</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Detail</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Form Sửa Chi Tiết Người Dùng -->
+<div class="modal fade" id="editUserDetailModal" tabindex="-1" aria-labelledby="editUserDetailLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-dark" id="editUserDetailLabel">Edit User Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark">
+                <form id="editUserDetailForm">
+                    <input type="hidden" id="editUserId">
+
+                    <div class="mb-3">
+                        <label for="editPhoneNumber" class="form-label">PhoneNumber</label>
+                        <input type="text" class="form-control" id="editPhoneNumber" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editMembershipLevel" class="form-label">MembershipLevel</label>
+                        <select class="form-control" id="editMembershipLevel">
+                            <option value="Basic">Basic</option>
+                            <option value="Silver">Silver</option>
+                            <option value="Gold">Gold</option>
+                            <option value="Platinum">Platinum</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editTotalSpent" class="form-label">TotalSpent</label>
+                        <input type="number" class="form-control" id="editTotalSpent" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCGVPoints" class="form-label">CGV Points</label>
+                        <input type="number" class="form-control" id="editCGVPoints" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editGiftCards" class="form-label">Gift Cards</label>
+                        <input type="text" class="form-control" id="editGiftCards" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editVouchers" class="form-label">Vouchers</label>
+                        <input type="text" class="form-control" id="editVouchers" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCoupons" class="form-label">Coupon</label>
+                        <input type="text" class="form-control" id="editCoupons" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editMemberCards" class="form-label">Member Cards</label>
+                        <select class="form-control" id="editMemberCards">
+                            <option value="Basic">Basic</option>
+                            <option value="Standard">Standard</option>
+                            <option value="Vip">Vip</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        // Xử lý thêm thông tin chi tiết người dùng
+        $("#addUserDetailForm").submit(function (event) {
+            event.preventDefault();
+
+            var userDetailData = {
+                userId: $("#userId").val(),
+                phoneNumber: $("#phoneNumber").val(),
+                membershipLevel: $("#membershipLevel").val(),
+                totalSpent: $("#totalSpent").val(),
+                cgvPoints: $("#cgvPoints").val(),
+                giftCards: $("#giftCards").val(),
+                vouchers: $("#vouchers").val(),
+                coupons: $("#coupons").val(),
+                memberCards: $("#memberCards").val()
+
+            };
+
+            $.ajax({
+                url: "https://localhost:7279/api/userdetails/create",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(userDetailData),
+                success: function () {
+                    alert("Add user details successfully!");
+                    $("#addUserDetailModal").modal("hide");
+                    location.reload();
+                },
+                error: function (error) {
+                    alert("Error adding details: " + error.responseText);
+                }
+            });
+        });
+
+        
+    });
+
+    $(document).ready(function () {
+        $(".edit-userdetail").click(function () {
+            var userId = $(this).data("id");
+
+            // Gọi API để lấy dữ liệu chi tiết người dùng
+            $.get(`https://localhost:7279/api/userdetails/${userId}`, function (data) {
+                $("#editUserId").val(data.id);
+                $("#editPhoneNumber").val(data.phoneNumber);
+                $("#editMembershipLevel").val(data.membershipLevel);
+                $("#editTotalSpent").val(data.totalSpent);
+                $("#editCGVPoints").val(data.cgvPoints);
+                $("#editGiftCards").val(data.giftCards);
+                $("#editVouchers").val(data.vouchers);
+                $("#editCoupons").val(data.coupons);
+                $("#editMemberCards").val(data.memberCards);
+
+
+                // Hiển thị modal chỉnh sửa
+                $("#editUserDetailModal").modal("show");
+            }).fail(function () {
+                alert("Unable to load user details.");
+            });
+        });
+
+        // Xử lý cập nhật chi tiết người dùng
+        $("#editUserDetailForm").submit(function (event) {
+            event.preventDefault();
+            var userId = $("#editUserId").val();
+
+            var updatedUserDetail = {
+                id: userId,
+                phoneNumber: $("#editPhoneNumber").val(),
+                membershipLevel: $("#editMembershipLevel").val(),
+                totalSpent: parseFloat($("#editTotalSpent").val()),
+                cgvPoints: parseInt($("#editCGVPoints").val()),
+                giftCards: $("#editGiftCards").val(),
+                vouchers: $("#editVouchers").val(),
+                coupons: $("#editCoupons").val(),
+                memberCards: $("#editMemberCards").val()
+
+            };
+
+            $.ajax({
+                url: `https://localhost:7279/api/userdetails/update/${userId}`,
+                type: "PUT",
+                contentType: "application/json",
+                data: JSON.stringify(updatedUserDetail),
+                success: function () {
+                    alert("User details updated successfully!");
+                    $("#editUserDetailModal").modal("hide");
+                    location.reload();
+                },
+                error: function (error) {
+                    alert("Error updating details: " + error.responseText);
+                }
+            });
+        });
+    });
+
+    $(document).ready(function () {
+        // Xử lý sự kiện xóa người dùng
+        $(".delete-userdetail").click(function () {
+            var userId = $(this).data("id");
+
+            if (!confirm("Are you sure you want to delete this detail??")) return;
+
+            $.ajax({
+                url: `https://localhost:7279/api/userdetails/${userId}`,
+                type: "DELETE",
+                success: function () {
+                    alert("Delete successful!");
+                    location.reload(); // Tải lại danh sách
+                },
+                error: function (error) {
+                    alert("Error while deleting: " + error.responseText);
+                }
+            });
+        });
+    });
+    
+</script>
+
+<style>
+    .modal-content {
+        color: black;
+    }
+</style>

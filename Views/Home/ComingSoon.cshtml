@@ -1,0 +1,31 @@
+﻿@model List<MovieBookingMVC.Models.Movies>
+
+@{
+    ViewData["Title"] = "Danh sách phim";
+}
+
+<h2 class="text-center">List Of Upcoming Movies</h2>
+<div class="row">
+    @foreach (var movie in Model)
+    {
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="@movie.ImageUrl" class="card-img-top" alt="@movie.Title">
+                    <div class="card-body">
+                        <h5 class="card-title">@movie.Title</h5>
+                        <p class="card-text">@movie.Description</p>
+                        <a href="@Url.Action("Details", "Home", new { id = movie.Id })" class="btn btn-primary">View Detail</a>
+                    </div>
+                </div>
+            </div>
+    }
+</div>
+<style>
+    .card-title {
+        color: black;
+    }
+
+    .card-text {
+        color: black;
+    }
+</style>

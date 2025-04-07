@@ -1,0 +1,89 @@
+﻿@model List<MovieBookingMVC.Models.Movies>
+
+@{
+    ViewData["Title"] = "List Movie";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="text-center">Current Movies</h2>
+    <div class="d-flex">
+        <input type="text" id="searchInput" class="form-control me-2" placeholder="Enter name film...">
+        <button class="btn btn-primary" id="searchButton">Search</button>
+    </div>
+</div>
+
+<div class="row" id="movieList">
+    @foreach (var movie in Model)
+    {
+        <div class="col-md-4 movie-item" data-title="@movie.Title.ToLower()">
+            <div class="card">
+                <img src="@movie.ImageUrl" class="card-img-top" alt="@movie.Title">
+                <div class="card-body">
+                    <h5 class="card-title">@movie.Title</h5>
+                    <p class="card-text">@movie.Description</p>
+                    <button class="btn btn-primary view-detail" data-movie-id="@movie.Id">
+                        View Detail
+                    </button>
+                    <a href="@Url.Action("Index", "Showtime")"
+                       class="btn btn-success btn-sm fw-bold booking-now"
+                       data-movie-id="@movie.Id">
+                        Booking Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("searchInput");
+        const searchButton = document.getElementById("searchButton");
+        const movieItems = document.querySelectorAll(".movie-item");
+
+        searchButton.addEventListener("click", function () {
+            let searchText = searchInput.value.trim().toLowerCase();
+
+            movieItems.forEach(item => {
+                let movieTitle = item.getAttribute("data-title");
+                if (movieTitle.includes(searchText)) {
+                    item.style.display = "block";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+        });
+
+        // Bắt sự kiện khi nhấn Enter trong ô tìm kiếm
+        searchInput.addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                searchButton.click();
+            }
+        });
+
+        // Bắt sự kiện khi nhấn vào nút View Detail
+        document.querySelectorAll(".view-detail").forEach(button => {
+            button.addEventListener("click", function () {
+                let movieId = this.getAttribute("data-movie-id");
+                document.cookie = `SelectedMovieId=${movieId}; path=/; max-age=3600`;
+                window.location.href = `/Home/Details/${movieId}`;
+            });
+        });
+
+        // Bắt sự kiện khi nhấn vào nút Booking Now
+        document.querySelectorAll('.booking-now').forEach(button => {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                let movieId = this.getAttribute("data-movie-id");
+                document.cookie = "selectedMovieId=" + movieId + "; path=/";
+                window.location.href = "@Url.Action("Index", "Showtime")";
+            });
+        });
+    });
+</script>
+
+<style>
+    .card-title, .card-text {
+        color: black;
+    }
+</style>

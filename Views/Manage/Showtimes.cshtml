@@ -1,0 +1,292 @@
+﻿@using MovieBookingMVC.Models
+@model List<Showtime>
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="text-white">Showtime Management</h2>
+
+    <div class="btn-group mb-3">
+        <a href="@Url.Action("Movies", "Manage")" class="btn btn-outline-light">Movie Manage</a>
+        <a href="@Url.Action("Showtimes", "Manage")" class="btn btn-primary">Showtime Manage</a>
+        <a href="@Url.Action("Seats", "Manage")" class="btn btn-outline-light">Seat Manage</a>
+        <a href="@Url.Action("Rooms", "Manage")" class="btn btn-outline-light">Room Manage</a>
+        <a href="@Url.Action("Tickets", "Manage")" class="btn btn-outline-light">Ticket Manage</a>
+        <a href="@Url.Action("Users", "Manage")" class="btn btn-outline-light">User Manage</a>
+        <a href="@Url.Action("UserDetails", "Manage")" class="btn btn-outline-light">UserDetail Manage</a>
+        <a href="@Url.Action("Statistical", "Manage")" class="btn btn-outline-light">Statistical Manage</a>
+
+    </div>
+
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addShowtimeModal">Add showtime</button>
+
+    <div class="table-responsive">
+        <table class="table table-dark table-bordered text-white">
+            <thead class="thead-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Movie</th>
+                    <th>Room</th>
+                    <th>Show Date</th>
+                    <th>Show Time</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="showtimeTableBody">
+                @foreach (var showtime in Model)
+                {
+                    <tr>
+                        <td>@showtime.Id</td>
+                        <td>@showtime.MovieTitle</td>
+                        <td>@showtime.CinemaRoom</td>
+                        <td>@showtime.ShowDate.ToString("yyyy-MM-dd")</td>
+                        <td>@showtime.Showtimes.ToString("HH:mm")</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm text-dark edit-showtime" data-id="@showtime.Id">Edit</button>
+                            <button class="btn btn-danger btn-sm delete-showtime" data-id="@showtime.Id">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="addShowtimeModal" tabindex="-1" aria-labelledby="addShowtimeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addShowtimeModalLabel">Add New ShowTime</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark">
+                <form id="addShowtimeForm">
+                    <div class="mb-3">
+                        <label for="movieId" class="form-label text-dark">Select Movie</label>
+                        <select class="form-control" id="movieId" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cinemaId" class="form-label text-dark">Select Room</label>
+                        <select class="form-control" id="cinemaId" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="showDate" class="form-label text-dark">Show Date</label>
+                        <input type="date" class="form-control" id="showDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="showTime" class="form-label text-dark">Show Time</label>
+                        <input type="time" class="form-control" id="showTime" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="price" class="form-label text-dark">Ticket Price (VND)</label>
+                        <input type="number" class="form-control" id="price" placeholder="Enter ticket price" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add New Showtime</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Sửa Suất Chiếu -->
+<div class="modal fade" id="editShowtimeModal" tabindex="-1" aria-labelledby="editShowtimeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editShowtimeModalLabel">Edit Show Time</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark">
+                <form id="editShowtimeForm">
+                    <input type="hidden" id="editShowtimeId">
+                    <div class="mb-3">
+                        <label class="form-label">Movie</label>
+                        <input type="text" id="editMovieTitle" class="form-control" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Room</label>
+                        <input type="text" id="editCinemaRoom" class="form-control" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Show Date</label>
+                        <input type="date" id="editShowDate" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Show Time</label>
+                        <input type="time" id="editShowTime" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Price (VND)</label>
+                        <input type="number" id="editPrice" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        function loadDropdowns() {
+            $.get("https://localhost:7279/api/movies", function (movies) {
+                $("#movieId").empty().append('<option value="">Select movie</option>');
+                movies.forEach(movie => {
+                    $("#movieId").append(`<option value="${movie.id}">${movie.title}</option>`);
+                });
+            });
+
+            $.get("https://localhost:7279/api/cinemas", function (cinemas) {
+                $("#cinemaId").empty().append('<option value="">Select room</option>');
+                cinemas.forEach(cinema => {
+                    $("#cinemaId").append(`<option value="${cinema.id}">${cinema.numberRoom} - ${cinema.name}</option>`);
+                });
+            });
+        }
+
+        loadDropdowns();
+          // Hiển thị ID khi chọn phim và phòng chiếu
+        $("#movieId").change(function () {
+            $("#selectedMovieId").val($(this).val());
+        });
+
+        $("#cinemaId").change(function () {
+            $("#selectedCinemaId").val($(this).val());
+        });
+
+            $("#addShowtimeForm").submit(function (event) {
+        event.preventDefault();
+
+        var date = $("#showDate").val(); // YYYY-MM-DD
+        var time = $("#showTime").val(); // HH:mm
+
+        if (!date || !time) {
+            alert("Please enter full date and time of show.");
+            return;
+        }
+
+        // Kết hợp ngày và giờ thành định dạng đầy đủ, rồi chuyển sang UTC ISO 8601
+        var combinedDateTime = new Date(date + "T" + time + ":00Z").toISOString();
+
+        var showtimeData = {
+            startTime: combinedDateTime, // ISO 8601 (UTC)
+            showDate: combinedDateTime, // ISO 8601 (UTC)
+            price: parseInt($("#price").val()),
+            movieId: $("#movieId").val(),
+            cinemaId: $("#cinemaId").val()
+        };
+
+        $.ajax({
+            url: "https://localhost:7279/api/showtimes/create",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(showtimeData),
+            success: function () {
+                alert("Showtime added successfully!");
+                $("#addShowtimeModal").modal("hide");
+                location.reload();
+            },
+              error: function (xhr) {
+                let errorMessage = xhr.responseJSON?.error || "Error adding showtime!";
+
+                // Nếu lỗi do suất chiếu bị trùng, hiển thị thông báo chi tiết
+                if (errorMessage.includes("Showtimes already exist")) {
+                    alert("Showtime already exists in this room. Please select another time or room..");
+                } else {
+                    alert(errorMessage);
+                }
+            }
+        });
+    });
+
+    });
+
+        $(document).ready(function () {
+        // Khi nhấn nút "Sửa", lấy dữ liệu suất chiếu từ API
+        $(".edit-showtime").click(function () {
+            var showtimeId = $(this).data("id");
+
+            $.get(`https://localhost:7279/api/showtimes/${showtimeId}`, function (data) {
+                $("#editShowtimeId").val(data.id);
+                $("#editMovieTitle").val(data.movieTitle);
+                $("#editCinemaRoom").val(data.cinemaRoom);
+                $("#editShowDate").val(data.showDate);
+                $("#editShowTime").val(data.showtime);
+                $("#editPrice").val(data.price);
+
+                $("#editShowtimeModal").modal("show");
+            }).fail(function () {
+                alert("Unable to load showtime information.");
+            });
+        });
+
+        // Xử lý cập nhật suất chiếu
+    $("#editShowtimeForm").submit(function (event) {
+        event.preventDefault();
+        var showtimeId = $("#editShowtimeId").val();
+
+        var date = $("#editShowDate").val(); // YYYY-MM-DD
+        var time = $("#editShowTime").val(); // HH:mm
+
+        if (!date || !time) {
+            alert("Please enter full date and time of show.");
+            return;
+        }
+
+        // Kết hợp ngày và giờ thành định dạng đầy đủ, rồi chuyển sang UTC ISO 8601
+        var combinedDateTime = new Date(date + "T" + time + ":00Z").toISOString();
+
+        var updatedShowtime = {
+            id: showtimeId,
+            startTime: combinedDateTime, // ISO 8601 (UTC)
+            showDate: combinedDateTime, // ISO 8601 (UTC)
+            price: parseInt($("#editPrice").val())
+        };
+
+        $.ajax({
+            url: `https://localhost:7279/api/showtimes/${showtimeId}`,
+            type: "PUT",
+            contentType: "application/json",
+            data: JSON.stringify(updatedShowtime),
+            success: function () {
+                alert("Showtime update successful!");
+                $("#editShowtimeModal").modal("hide");
+                location.reload();
+            },
+            error: function (error) {
+                alert("Error updating showtimes: " + error.responseText);
+            }
+        });
+    });
+    });
+
+    $(document).ready(function () {
+        $(".delete-showtime").click(function () {
+            var showtimeId = $(this).data("id");
+
+            if (confirm("Are you sure you want to delete this show??")) {
+                $.ajax({
+                    url: `https://localhost:7279/api/showtimes/${showtimeId}`,
+                    type: "DELETE",
+                    success: function () {
+                        alert("Showtime deleted successfully!");
+                        location.reload();
+                    },
+                    error: function (error) {
+                        alert("Error deleting showtime: " + error.responseText);
+                    }
+                });
+            }
+        });
+    });
+
+</script>
+
+<style>
+    .modal-content {
+        color: black;
+    }
+</style>
