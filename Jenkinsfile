@@ -17,7 +17,7 @@ pipeline {
 
         stage('Restore') {
             steps {
-               bat "dotnet restore MovieBookingMVC/MovieBookingMVC.sln"
+               bat "dotnet restore MovieBookingMVC.sln"
             }
         }
 
