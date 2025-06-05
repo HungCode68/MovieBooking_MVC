@@ -17,26 +17,26 @@ pipeline {
 
         stage('Restore') {
             steps {
-                sh 'dotnet restore'
+                bat 'dotnet restore'
             }
         }
 
         stage('Build') {
             steps {
-                sh 'dotnet build --configuration Release --no-restore'
+                bat 'dotnet build --configuration Release --no-restore'
             }
         }
 
         stage('Test') {
             steps {
                 // Nếu không có test project, bạn có thể comment dòng này
-                sh 'dotnet test --no-build --verbosity normal'
+                bat 'dotnet test --no-build --verbosity normal'
             }
         }
 
         stage('Publish') {
             steps {
-                sh 'dotnet publish -c Release -o published'
+                bat 'dotnet publish -c Release -o published'
             }
         }
     }
