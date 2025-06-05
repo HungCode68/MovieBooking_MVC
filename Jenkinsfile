@@ -17,7 +17,7 @@ pipeline {
 
         stage('Restore') {
             steps {
-               bat "dotnet restore HungCode68/MovieBooking_MVC/blob/master/MovieBookingMVC.sln"
+               bat "dotnet restore MovieBookingMVC.sln"
             }
         }
 
