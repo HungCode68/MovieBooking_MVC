@@ -4,17 +4,17 @@
 <p class="text-center">Thank you for booking your ticket. Hope you have a great experience!</p>
 
 <div class="ticket-info bg-white p-6 rounded-lg shadow-lg border border-gray-200 max-w-md mx-auto mt-4">
-    <h3 class="font-bold text-lg mb-4 text-black">Your ticket information</h3>
+    <h3 class="font-bold text-lg mb-4 text-black">🎫 Your ticket information</h3>
     <div class="space-y-2 text-black">
-        <p><strong>Movie:</strong> @Model.MovieTitle</p>
-        <p><strong>Room:</strong> @Model.CinemaRoom</p>
-        <p><strong>Showtime:</strong> @Model.Showtime</p>
-        <p><strong>Seat:</strong> @string.Join(", ", Model.SeatNumbers)</p>
-        <p class="text-lg font-bold text-red-600 mt-4">Total amount: <span id="finalTotal">@Model.TotalPrice.ToString("N0") VNĐ</span></p>
+        <p><strong>🎬 Movie:</strong> @Model.MovieTitle</p>
+        <p><strong>🏢 Room:</strong> @Model.CinemaRoom</p>
+        <p><strong>🕒 Showtime:</strong> @Model.Showtime</p>
+        <p><strong>💺 Seat:</strong> @string.Join(", ", Model.SeatNumbers)</p>
+        <p class="text-lg font-bold text-red-600 mt-4">💵 Total amount: <span id="finalTotal">@Model.TotalPrice.ToString("N0") VNĐ</span></p>
     </div>
 </div>
 
-<a href="@Url.Action("Index", "Home")" class="btn btn-primary d-block mx-auto mt-4" style="width: 200px;">Return to Home page</a>
+<a href="@Url.Action("Index", "Home")" class="btn btn-primary d-block mx-auto mt-4" style="width: 200px;">⬅️ Return to Home page</a>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
